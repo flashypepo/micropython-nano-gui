@@ -1,6 +1,4 @@
 # MicroPython SSD1306 OLED driver, I2C and SPI interfaces
-# 2026-0606 PP modified show(), added rotate() from
-# https://github.com/micropython/micropython-lib/blob/9f7f99b066f9cb0912a397063b5a4b8586bb0a2d/micropython/drivers/display/ssd1306/ssd1306.py#L82
 
 from micropython import const
 import framebuf
@@ -93,24 +91,13 @@ class SSD1306(framebuf.FrameBuffer):
     def invert(self, invert):
         self.write_cmd(SET_NORM_INV | (invert & 1))
 
-    def rotate(self, rotate):
-        self.write_cmd(SET_COM_OUT_DIR | ((rotate & 1) << 3))
-        self.write_cmd(SET_SEG_REMAP | (rotate & 1))
-
     def show(self):
         x0 = 0
         x1 = self.width - 1
-        # PP modified from 
-        # https://github.com/micropython/micropython-lib/blob/9f7f99b066f9cb0912a397063b5a4b8586bb0a2d/micropython/drivers/display/ssd1306/ssd1306.py#L82
-        #if self.width == 64:
-        #    # displays with width of 64 pixels are shifted by 32
-        #    x0 += 32
-        #    x1 += 32
-        if self.width != 128:
-            # narrow displays use centred columns
-            col_offset = (128 - self.width) // 2
-            x0 += col_offset
-            x1 += col_offset
+        if self.width == 64:
+            # displays with width of 64 pixels are shifted by 32
+            x0 += 32
+            x1 += 32
         self.write_cmd(SET_COL_ADDR)
         self.write_cmd(x0)
         self.write_cmd(x1)
